@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from .norms import NORMS
 from .seblock import SEBlock
 from .self_attention import SelfAttention1d
-from trainer.modules import acts
+from develop.src.trainer.modules import acts
 
 
 def identity(x):

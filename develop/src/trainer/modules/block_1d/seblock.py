@@ -1,6 +1,6 @@
 from torch import nn
 from .norms import perform_sn
-from trainer.modules import acts
+from develop.src.trainer.modules import acts
 
 
 get_activation_func = {

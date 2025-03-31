@@ -1,0 +1,11 @@
+source .venv/bin/activate
+
+python -m develop.src.rawdata_builder.build_rawdata
+
+python -m develop.src.dataset_builder.build_dataset build
+
+python -m develop.src.trainer.models.predictor_v1 train --mode=train
+
+python -m develop.src.trainer.models.predictor_v1 generate --mode=test
+
+python -m develop.src.reviewer.reviewer_v1 run --in_shell True --n_jobs 1

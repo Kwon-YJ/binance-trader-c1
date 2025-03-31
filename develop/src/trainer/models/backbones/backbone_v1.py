@@ -2,8 +2,16 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from trainer.modules.block_1d import DenseBlock, TransitionBlock, NORMS
-from trainer.modules import acts
+
+# from trainer.modules.block_1d import DenseBlock, TransitionBlock, NORMS
+# from trainer.modules import acts
+
+
+
+from develop.src.trainer.modules.block_1d import DenseBlock, TransitionBlock, NORMS
+from develop.src.trainer.modules import acts
+
+
 
 
 def identity(x):

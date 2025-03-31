@@ -10,7 +10,7 @@ from functools import partial
 from itertools import combinations
 from sklearn import preprocessing
 import joblib
-from common_utils_dev import make_dirs, to_parquet, to_abs_path, get_filename_by_path
+from develop.src.common_utils_dev import make_dirs, to_parquet, to_abs_path, get_filename_by_path
 from pandarallel import pandarallel
 from dataclasses import dataclass
 
@@ -342,7 +342,10 @@ class DatasetBuilder:
         gc.collect()
 
         # Masking with common index
-        common_index = (features.index & labels.index).sort_values()
+        # common_index = (features.index & labels.index).sort_values()
+        common_index = pd.Index(np.intersect1d(features.index, labels.index)).sort_values()
+
+
         features = features.reindex(common_index)
         labels = labels.reindex(common_index)
         pricing = rawdata.reindex(common_index)

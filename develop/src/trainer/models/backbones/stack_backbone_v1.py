@@ -1,8 +1,8 @@
 from .backbone_v1 import BackboneV1, identity
 import math
 import torch.nn as nn
-from trainer.modules.block_1d import NORMS
-from trainer.modules import acts
+from develop.src.trainer.modules.block_1d import NORMS
+from develop.src.trainer.modules import acts
 
 
 class StackBackboneV1(BackboneV1):

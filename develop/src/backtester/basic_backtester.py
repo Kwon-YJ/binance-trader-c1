@@ -7,10 +7,10 @@ import matplotlib.pyplot as plt
 from abc import abstractmethod
 from IPython.display import display, display_markdown
 from .utils import load_parquet, Position
-from common_utils_dev import make_dirs
+from develop.src.common_utils_dev import make_dirs
 from collections import OrderedDict, defaultdict
 import empyrical as emp
-from common_utils_dev import to_parquet
+from develop.src.common_utils_dev import to_parquet
 
 
 CONFIG = {
@@ -240,11 +240,27 @@ class BasicBacktester:
                 ),
             },
         )
+
+
+
         self.tradable_coins = self.historical_data_dict["predictions"].columns
-        self.index = (
-            self.historical_data_dict["predictions"].index
-            & self.historical_data_dict["pricing"].index
-        ).sort_values()
+        # self.index = (
+        #     self.historical_data_dict["predictions"].index
+        #     & self.historical_data_dict["pricing"].index
+        # ).sort_values()
+
+        common_dates = np.intersect1d(
+            self.historical_data_dict["predictions"].index,
+            self.historical_data_dict["pricing"].index
+        )
+        self.index = pd.DatetimeIndex(common_dates).sort_values()
+
+        import pdb
+        # pdb.set_trace()
+
+
+
+
         for key in self.historical_data_dict.keys():
             self.historical_data_dict[key] = self.historical_data_dict[key].reindex(
                 self.index
@@ -628,12 +644,17 @@ class BasicBacktester:
                 )
 
     def exit_order(self, position, pricing, now, achieved=False):
+        print(f"\nCalculating profit for {position.asset} ({position.side})")
         profit = self.compute_profit(
             position=position, pricing=pricing, now=now, achieved=achieved
         )
+        print(f"Profit: {profit}")
         self.deposit_cache(profit=profit)
 
         net_profit = profit - (position.entry_price * position.qty)
+        print(f"Net profit: {net_profit}")
+        print(f"Trade return: {net_profit / (position.entry_price * position.qty)}")
+        
         self.report(value=net_profit, target="historical_profits", now=now, append=True)
         self.report(
             value=(net_profit / (position.entry_price * position.qty)),
@@ -641,6 +662,7 @@ class BasicBacktester:
             now=now,
             append=True,
         )
+        print(f"Historical trade returns after update: {len(self.historical_trade_returns)}")
 
     def handle_entry(
         self,
@@ -675,6 +697,9 @@ class BasicBacktester:
                 )
 
     def handle_exit(self, positive_assets, negative_assets, pricing, now):
+        import pdb
+        # pdb.set_trace()
+
         for position_idx, position in enumerate(self.positions):
             # Handle achievement
             if self.exit_if_achieved is True:
@@ -682,6 +707,7 @@ class BasicBacktester:
                     self.check_if_achieved(position=position, pricing=pricing, now=now)
                     is True
                 ):
+                    print(f"\nExiting position due to achievement: {position.asset} ({position.side})")
                     self.exit_order(
                         position=position, pricing=pricing, now=now, achieved=True
                     )
@@ -711,6 +737,7 @@ class BasicBacktester:
 
             # Handle max_holding_minutes
             if passed_minutes >= self.max_holding_minutes:
+                print(f"\nExiting position due to max holding time: {position.asset} ({position.side})")
                 self.exit_order(position=position, pricing=pricing, now=now)
                 self.report(
                     value={position.asset: "max_holding_minutes"},
@@ -723,6 +750,7 @@ class BasicBacktester:
 
             # Handle exit signal
             if (position.side == "long") and (position.asset in negative_assets):
+                print(f"\nExiting position due to opposite signal: {position.asset} ({position.side})")
                 self.exit_order(position=position, pricing=pricing, now=now)
                 self.report(
                     value={position.asset: "opposite_signal"},
@@ -734,6 +762,7 @@ class BasicBacktester:
                 continue
 
             if (position.side == "short") and (position.asset in positive_assets):
+                print(f"\nExiting position due to opposite signal: {position.asset} ({position.side})")
                 self.exit_order(position=position, pricing=pricing, now=now)
                 self.report(
                     value={position.asset: "opposite_signal"},

@@ -11,12 +11,13 @@ from abc import abstractmethod
 
 import torch
 import torch.nn as nn
-from common_utils_dev import load_text, load_json, to_abs_path, get_parent_dir
+from develop.src.common_utils_dev import load_text, load_json, to_abs_path, get_parent_dir
 from .utils import save_model, load_model, weights_init
 from .criterions import CRITERIONS
 from ..datasets.dataset import Dataset
 from torch.utils.data import DataLoader
-from trainer.models import backbones
+# from trainer.models import backbones
+from develop.src.trainer.models import backbones
 
 COMMON_CONFIG = {
     "data_dir": to_abs_path(__file__, "../../../storage/dataset/dataset/v001/train"),
@@ -79,13 +80,28 @@ class BasicPredictor:
         d_config={},
         m_config={},
         exp_dir=COMMON_CONFIG["exp_dir"],
-        device="cuda",
+        device=None,
         pin_memory=False,
         num_workers=8,
         mode="train",
         default_d_config=DATA_CONFIG,
         default_m_config=MODEL_CONFIG,
     ):
+        # 디바이스 자동 설정
+        if device is None:
+            if torch.backends.mps.is_available():
+                device = "mps"
+            elif torch.cuda.is_available():
+                device = "cuda"
+            else:
+                device = "cpu"
+        self.device = device
+
+        # MPS 사용 시 num_workers 조정
+        if self.device == "mps":
+            self.num_workers = 0  # macOS에서 MPS 사용 시 num_workers=0 권장
+
+
         assert mode in ("train", "test", "predict")
         self.data_dir = data_dir
         self.test_data_dir = test_data_dir
@@ -230,9 +246,10 @@ class BasicPredictor:
             "asset_to_id": self.asset_to_id,
         }
 
+        # 수정 후 (MPS인 경우 pin_memory=False로 강제 설정)
         base_data_loader_params = {
             "batch_size": self.model_config["batch_size"],
-            "pin_memory": self.pin_memory,
+            "pin_memory": self.pin_memory if self.device != "mps" else False,
             "num_workers": self.num_workers,
         }
 
@@ -284,11 +301,17 @@ class BasicPredictor:
         model.apply(weights_init)
 
         # Setup device
-        if torch.cuda.device_count() > 1:
-            print("Notice: use ", torch.cuda.device_count(), "GPUs")
+        # if torch.cuda.device_count() > 1:
+        #     print("Notice: use ", torch.cuda.device_count(), "GPUs")
+        #     model = nn.DataParallel(model)
+        # else:
+        #     print(f"Notice: use {self.device}")
+        if self.device.startswith("cuda") and torch.cuda.device_count() > 1:
+            print(f"Notice: using {torch.cuda.device_count()} GPUs")
             model = nn.DataParallel(model)
         else:
-            print(f"Notice: use {self.device}")
+            print(f"Notice: using {self.device}")
+
 
         # Load models
         self._load_model(model=model)

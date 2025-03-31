@@ -8,7 +8,7 @@ from typing import Union, Optional, List, Dict
 from tqdm import tqdm
 from .basic_predictor import BasicPredictor
 from .utils import inverse_preprocess_data
-from common_utils_dev import to_parquet, to_abs_path
+from develop.src.common_utils_dev import to_parquet, to_abs_path
 
 COMMON_CONFIG = {
     "data_dir": to_abs_path(__file__, "../../../storage/dataset/dataset/v001/train"),
@@ -28,7 +28,8 @@ MODEL_CONFIG = {
     "lookback_window": 120,
     "batch_size": 512,
     "lr": 0.0001,
-    "epochs": 15,
+    # "epochs": 15,
+    "epochs": 50,
     "print_epoch": 1,
     "print_iter": 50,
     "save_epoch": 1,
@@ -66,13 +67,30 @@ class PredictorV1(BasicPredictor):
         d_config={},
         m_config={},
         exp_dir=COMMON_CONFIG["exp_dir"],
-        device="cuda",
+        device=None,
         pin_memory=False,
         num_workers=8,
         mode="train",
         default_d_config=DATA_CONFIG,
         default_m_config=MODEL_CONFIG,
     ):
+        # 디바이스 자동 설정
+        if device is None:
+            if torch.backends.mps.is_available():
+                device = "mps"
+            elif torch.cuda.is_available():
+                device = "cuda"
+            else:
+                device = "cpu"
+        self.device = device
+
+        # MPS 사용 시 num_workers 조정
+        if self.device == "mps":
+            self.num_workers = 0  # macOS에서 MPS 사용 시 num_workers=0 권장
+
+        
+
+
         super().__init__(
             data_dir=data_dir,
             test_data_dir=test_data_dir,
@@ -201,6 +219,9 @@ class PredictorV1(BasicPredictor):
 
         if save_dir is None:
             save_dir = self.data_config["generate_output_dir"]
+
+        import pdb
+        # pdb.set_trace()
 
         # Mutate 1 min to handle logic, entry: open, exit: open
         index = self.test_data_loader.dataset.index

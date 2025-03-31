@@ -3,23 +3,25 @@ from typing import Dict, List, Union
 from joblib import Parallel, delayed
 from IPython.display import display, display_markdown
 from tqdm import tqdm
-import backtester
+from develop.src import backtester
 import os
 import pandas as pd
 from glob import glob
 import matplotlib.pyplot as plt
 from .utils import grid
 import json
-from reviewer import paramset
-from common_utils_dev import to_abs_path
+from develop.src.reviewer import paramset
+from develop.src.common_utils_dev import to_abs_path
 from tabulate import tabulate
 import fancytable as ft
 
 
 @dataclass
 class ReviewerV1:
-    dataset_dir: str = to_abs_path(__file__, "../../storage/dataset/dataset/v001/")
-    exp_dir: str = to_abs_path(__file__, "../../storage/experiments/v001/")
+    # dataset_dir: str = to_abs_path(__file__, "../../storage/dataset/dataset/v001/")
+    dataset_dir = "develop/storage/dataset/dataset/v001/"
+    # exp_dir: str = to_abs_path(__file__, "../../storage/experiments/v001/")
+    exp_dir = "develop/storage/experiments/v001/"
     reviewer_prefix: str = "v001"
     grid_params: Union[str, Dict[str, List]] = "V1_SET1"
     backtester_type: str = "BacktesterV1"
@@ -197,6 +199,8 @@ class ReviewerV1:
             if self._exists_artifact(index=backtester.report_prefix.split("_")[-1])
             is not True
         ]
+        import pdb
+        # pdb.set_trace()
 
     def _load_artifact(self, artifact_type, index):
         assert artifact_type in ("metrics", "report", "params")

@@ -9,7 +9,7 @@ CONFIG = {
     "report_prefix": "v001",
     "detail_report": False,
     "position_side": "longshort",
-    "entry_ratio": 0.055,
+    "entry_ratio": 0.2,
     "commission": {"entry": 0.0004, "exit": 0.0002, "spread": 0.0004},
     "min_holding_minutes": 1,
     "max_holding_minutes": 30,
@@ -63,8 +63,8 @@ class BacktesterV1(BasicBacktester):
             report_prefix=report_prefix,
             detail_report=detail_report,
             position_side=position_side,
-            entry_ratio=entry_ratio,
-            commission=commission,
+            entry_ratio=CONFIG["entry_ratio"],
+            commission=CONFIG["commission"],
             min_holding_minutes=min_holding_minutes,
             max_holding_minutes=max_holding_minutes,
             compound_interest=compound_interest,
@@ -83,6 +83,7 @@ class BacktesterV1(BasicBacktester):
         )
 
     def run(self, display=True):
+
         self.build()
         self.initialize()
 
@@ -102,6 +103,15 @@ class BacktesterV1(BasicBacktester):
                 & (probabilities >= self.negative_probability_bins)
             ]
 
+            # Debug: Print current state
+            print(f"\nTime: {now}")
+            print(f"Number of positions: {len(self.positions)}")
+            print(f"Number of trade returns: {len(self.historical_trade_returns)}")
+            if len(self.positions) > 0:
+                print("Current positions:")
+                for pos in self.positions:
+                    print(f"  {pos.asset} ({pos.side})")
+
             # Exit
             self.handle_exit(
                 positive_assets=positive_assets,
@@ -109,6 +119,10 @@ class BacktesterV1(BasicBacktester):
                 pricing=pricing,
                 now=now,
             )
+
+            # Debug: Print state after exit
+            print(f"Number of positions after exit: {len(self.positions)}")
+            print(f"Number of trade returns after exit: {len(self.historical_trade_returns)}")
 
             # Compute how much use cache
             if self.compound_interest is False:
@@ -150,7 +164,14 @@ class BacktesterV1(BasicBacktester):
             )
             self.report(value=self.positions, target="historical_positions", now=now)
 
+
         report = self.generate_report()
+
+
+
+        
+
+
         self.store_report(report=report)
 
         if display is True:
