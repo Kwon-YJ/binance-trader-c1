@@ -54,10 +54,10 @@ class BottleneckBlock(nn.Module):
         self.act = getattr(acts, activation)
         if activation == "selu":
             self.dropout = nn.Sequential(
-                *[nn.AlphaDropout(dropout / 5), nn.Dropout2d(dropout)]
+                *[nn.AlphaDropout(dropout / 5), nn.Dropout1d(dropout)]
             )
         else:
-            self.dropout = nn.Sequential(*[nn.Dropout(dropout), nn.Dropout2d(dropout)])
+            self.dropout = nn.Sequential(*[nn.Dropout(dropout), nn.Dropout1d(dropout)])
 
         # Optional blocks
         self.seblock = None
@@ -111,10 +111,10 @@ class TransitionBlock(nn.Module):
         )
         if activation == "selu":
             self.dropout = nn.Sequential(
-                *[nn.AlphaDropout(dropout / 5), nn.Dropout2d(dropout)]
+                *[nn.AlphaDropout(dropout / 5), nn.Dropout1d(dropout)]
             )
         else:
-            self.dropout = nn.Sequential(*[nn.Dropout(dropout), nn.Dropout2d(dropout)])
+            self.dropout = nn.Sequential(*[nn.Dropout(dropout), nn.Dropout1d(dropout)])
 
     def forward(self, x: torch.Tensor):
         out = self.conv(self.dropout(self.act(self.norm(x))))

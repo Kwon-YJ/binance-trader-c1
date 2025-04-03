@@ -10,7 +10,8 @@ CONFIG = {
     "detail_report": False,
     "position_side": "longshort",
     "entry_ratio": 0.2,
-    "commission": {"entry": 0.0004, "exit": 0.0002, "spread": 0.0004},
+    # "commission": {"entry": 0.0004, "exit": 0.0002, "spread": 0.0004},
+    "commission": {"entry": 0, "exit": 0, "spread": 0},
     "min_holding_minutes": 1,
     "max_holding_minutes": 30,
     "compound_interest": True,
@@ -104,13 +105,13 @@ class BacktesterV1(BasicBacktester):
             ]
 
             # Debug: Print current state
-            print(f"\nTime: {now}")
-            print(f"Number of positions: {len(self.positions)}")
-            print(f"Number of trade returns: {len(self.historical_trade_returns)}")
-            if len(self.positions) > 0:
-                print("Current positions:")
-                for pos in self.positions:
-                    print(f"  {pos.asset} ({pos.side})")
+            # print(f"\nTime: {now}")
+            # print(f"Number of positions: {len(self.positions)}")
+            # print(f"Number of trade returns: {len(self.historical_trade_returns)}")
+            # if len(self.positions) > 0:
+            #     print("Current positions:")
+            #     for pos in self.positions:
+            #         print(f"  {pos.asset} ({pos.side})")
 
             # Exit
             self.handle_exit(
@@ -121,8 +122,8 @@ class BacktesterV1(BasicBacktester):
             )
 
             # Debug: Print state after exit
-            print(f"Number of positions after exit: {len(self.positions)}")
-            print(f"Number of trade returns after exit: {len(self.historical_trade_returns)}")
+            # print(f"Number of positions after exit: {len(self.positions)}")
+            # print(f"Number of trade returns after exit: {len(self.historical_trade_returns)}")
 
             # Compute how much use cache
             if self.compound_interest is False:

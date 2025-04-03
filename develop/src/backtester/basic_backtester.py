@@ -644,16 +644,16 @@ class BasicBacktester:
                 )
 
     def exit_order(self, position, pricing, now, achieved=False):
-        print(f"\nCalculating profit for {position.asset} ({position.side})")
+        # print(f"\nCalculating profit for {position.asset} ({position.side})")
         profit = self.compute_profit(
             position=position, pricing=pricing, now=now, achieved=achieved
         )
-        print(f"Profit: {profit}")
+        # print(f"Profit: {profit}")
         self.deposit_cache(profit=profit)
 
         net_profit = profit - (position.entry_price * position.qty)
-        print(f"Net profit: {net_profit}")
-        print(f"Trade return: {net_profit / (position.entry_price * position.qty)}")
+        # print(f"Net profit: {net_profit}")
+        # print(f"Trade return: {net_profit / (position.entry_price * position.qty)}")
         
         self.report(value=net_profit, target="historical_profits", now=now, append=True)
         self.report(
@@ -662,7 +662,7 @@ class BasicBacktester:
             now=now,
             append=True,
         )
-        print(f"Historical trade returns after update: {len(self.historical_trade_returns)}")
+        # print(f"Historical trade returns after update: {len(self.historical_trade_returns)}")
 
     def handle_entry(
         self,
@@ -707,7 +707,7 @@ class BasicBacktester:
                     self.check_if_achieved(position=position, pricing=pricing, now=now)
                     is True
                 ):
-                    print(f"\nExiting position due to achievement: {position.asset} ({position.side})")
+                    # print(f"\nExiting position due to achievement: {position.asset} ({position.side})")
                     self.exit_order(
                         position=position, pricing=pricing, now=now, achieved=True
                     )
@@ -737,7 +737,7 @@ class BasicBacktester:
 
             # Handle max_holding_minutes
             if passed_minutes >= self.max_holding_minutes:
-                print(f"\nExiting position due to max holding time: {position.asset} ({position.side})")
+                # print(f"\nExiting position due to max holding time: {position.asset} ({position.side})")
                 self.exit_order(position=position, pricing=pricing, now=now)
                 self.report(
                     value={position.asset: "max_holding_minutes"},
@@ -750,7 +750,7 @@ class BasicBacktester:
 
             # Handle exit signal
             if (position.side == "long") and (position.asset in negative_assets):
-                print(f"\nExiting position due to opposite signal: {position.asset} ({position.side})")
+                # print(f"\nExiting position due to opposite signal: {position.asset} ({position.side})")
                 self.exit_order(position=position, pricing=pricing, now=now)
                 self.report(
                     value={position.asset: "opposite_signal"},
@@ -762,7 +762,7 @@ class BasicBacktester:
                 continue
 
             if (position.side == "short") and (position.asset in positive_assets):
-                print(f"\nExiting position due to opposite signal: {position.asset} ({position.side})")
+                # print(f"\nExiting position due to opposite signal: {position.asset} ({position.side})")
                 self.exit_order(position=position, pricing=pricing, now=now)
                 self.report(
                     value={position.asset: "opposite_signal"},
