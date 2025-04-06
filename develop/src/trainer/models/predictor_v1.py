@@ -26,10 +26,9 @@ DATA_CONFIG = {
 
 MODEL_CONFIG = {
     "lookback_window": 120,
-    # "batch_size": 512,
     "batch_size": 128,
     "lr": 0.0001,
-    "epochs": 5,
+    "epochs": 80,
     "print_epoch": 1,
     "print_iter": 50,
     "save_epoch": 1,
@@ -72,8 +71,8 @@ class PredictorV1(BasicPredictor):
         exp_dir=COMMON_CONFIG["exp_dir"],
         device=None,
         pin_memory=False,
-        # num_workers=8,
-        num_workers=0,
+        num_workers=2,
+        # num_workers=0,
         mode="train",
         default_d_config=DATA_CONFIG,
         default_m_config=MODEL_CONFIG,
@@ -87,12 +86,6 @@ class PredictorV1(BasicPredictor):
             else:
                 device = "cpu"
         self.device = device
-
-        # MPS 사용 시 num_workers 조정
-        if self.device == "mps":
-            self.num_workers = 0  # macOS에서 MPS 사용 시 num_workers=0 권장
-
-        
 
 
         super().__init__(

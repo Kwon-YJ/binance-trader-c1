@@ -56,8 +56,12 @@ def build_rawdata(
             ["open", "high", "low", "close"]
         ].sort_index()
 
+        # 중복된 인덱스 처리
+        spot_df = spot_df[~spot_df.index.duplicated(keep='first')]
+        future_df = future_df[~future_df.index.duplicated(keep='first')]
+
         df = pd.concat([spot_df[spot_df.index < future_df.index[0]], future_df])
-        df = df.resample("1T").ffill()
+        df = df.resample("1min").ffill()
 
         df = df[query_min_start_dt:]
         if df.index[0] > pd.Timestamp(boundary_dt_must_have_data):

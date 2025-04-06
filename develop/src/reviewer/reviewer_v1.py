@@ -297,6 +297,8 @@ class ReviewerV1:
         else:
             plt.show()
 
+        plt.savefig('output_graph.png')
+
     def display_metrics(self, in_shell=False):
         metrics = self._build_metrics()
 
